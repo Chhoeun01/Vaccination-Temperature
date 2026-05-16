@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maxicare Vaccine Temperature Control</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">M</div>
+          <div>
+            <p class="eyebrow">Maxicare Children Hospital</p>
+            <h1>Vaccine Temperature Control</h1>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Main views">
+          <button class="nav-button active" type="button" data-view="captureView" aria-pressed="true">
+            <span aria-hidden="true">◉</span>
+            Capture
+          </button>
+          <button class="nav-button" type="button" data-view="dashboardView" aria-pressed="false">
+            <span aria-hidden="true">▦</span>
+            Dashboard
+          </button>
+          <button class="nav-button" type="button" data-view="recordsView" aria-pressed="false">
+            <span aria-hidden="true">☷</span>
+            Temperature List
+          </button>
+        </nav>
+
+        <section class="summary-panel" aria-label="Current status">
+          <p class="panel-label">Current Status</p>
+          <strong id="statusLabel">No records yet</strong>
+          <span id="statusDetail">Add a temperature reading to begin monitoring.</span>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Cold chain monitoring</p>
+            <h2 id="viewTitle">Capture Temperature</h2>
+          </div>
+          <div class="top-actions">
+            <button class="ghost-button" type="button" id="exportBtn" title="Export CSV">Export</button>
+            <button class="danger-button" type="button" id="clearBtn" title="Clear all records">Clear</button>
+          </div>
+        </header>
+
+        <section class="view active" id="captureView" aria-labelledby="captureTitle">
+          <div class="capture-layout">
+            <section class="camera-panel">
+              <div class="section-heading">
+                <h3 id="captureTitle">Camera Capture</h3>
+                <p>Take a photo of the refrigerator, thermometer, or vaccine storage area.</p>
+              </div>
+              <div class="camera-frame">
+                <video id="cameraFeed" autoplay playsinline muted></video>
+                <canvas id="photoCanvas" hidden></canvas>
+                <img id="photoPreview" alt="Captured temperature evidence" />
+                <div class="camera-empty" id="cameraEmpty">
+                  <strong>Camera preview</strong>
+                  <span>Start the camera, then capture the reading.</span>
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="primary-button" type="button" id="startCameraBtn">Start Camera</button>
+                <button class="secondary-button" type="button" id="capturePhotoBtn" disabled>Take Picture</button>
+              </div>
+            </section>
+
+            <form class="entry-panel" id="temperatureForm">
+              <div class="section-heading">
+                <h3>Record Temperature</h3>
+                <p>Safe vaccine storage target is 2°C to 8°C.</p>
+              </div>
+
+              <label>
+                Temperature (°C)
+                <input id="temperatureInput" name="temperature" type="number" min="-30" max="60" step="0.1" placeholder="4.2" required />
+              </label>
+
+              <div class="field-grid">
+                <label>
+                  Storage Unit
+                  <input id="unitInput" name="unit" type="text" placeholder="Fridge 1" required />
+                </label>
+                <label>
+                  Department
+                  <select id="departmentInput" name="department">
+                    <option>Vaccination Room</option>
+                    <option>Pharmacy</option>
+                    <option>Pediatric Ward</option>
+                    <option>Emergency</option>
+                    <option>Laboratory</option>
+                  </select>
+                </label>
+              </div>
+
+              <label>
+                Staff Name
+                <input id="staffInput" name="staff" type="text" placeholder="Nurse / Pharmacist" required />
+              </label>
+
+              <label>
+                Notes
+                <textarea id="notesInput" name="notes" rows="4" placeholder="Optional note about the reading, door opening, power event, or corrective action."></textarea>
+              </label>
+
+              <button class="save-button" type="submit">Save Temperature Record</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="view" id="dashboardView" aria-labelledby="dashboardTitle">
+          <div class="dashboard-grid">
+            <article class="metric">
+              <span>Total Records</span>
+              <strong id="totalRecords">0</strong>
+            </article>
+            <article class="metric">
+              <span>Average Temp</span>
+              <strong id="averageTemp">--</strong>
+            </article>
+            <article class="metric">
+              <span>Safe Readings</span>
+              <strong id="safeCount">0</strong>
+            </article>
+            <article class="metric alert">
+              <span>Out of Range</span>
+              <strong id="alertCount">0</strong>
+            </article>
+          </div>
+
+          <section class="chart-panel">
+            <div class="section-heading">
+              <h3 id="dashboardTitle">Temperature Dashboard</h3>
+              <p>Latest 12 readings across all vaccine storage units.</p>
+            </div>
+            <div class="chart" id="temperatureChart" aria-label="Temperature chart"></div>
+          </section>
+
+          <section class="recent-panel">
+            <div class="section-heading">
+              <h3>Latest Reading</h3>
+              <p>Most recent saved record and photo evidence.</p>
+            </div>
+            <div id="latestReading" class="latest-empty">No temperature has been recorded yet.</div>
+          </section>
+        </section>
+
+        <section class="view" id="recordsView" aria-labelledby="recordsTitle">
+          <div class="section-heading list-heading">
+            <div>
+              <h3 id="recordsTitle">Temperature List</h3>
+              <p>All readings saved on this device.</p>
+            </div>
+            <input id="searchInput" type="search" placeholder="Search unit, staff, department..." />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Temp</th>
+                  <th>Status</th>
+                  <th>Unit</th>
+                  <th>Department</th>
+                  <th>Staff</th>
+                  <th>Photo</th>
+                </tr>
+              </thead>
+              <tbody id="recordsTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
